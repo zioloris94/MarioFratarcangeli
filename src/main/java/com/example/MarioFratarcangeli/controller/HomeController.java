@@ -30,7 +30,7 @@ public class HomeController {
     public String loginPage() {
         return "login";
     }
-    @GetMapping("/home")
+    @GetMapping("/")
     public String showHomePage(Model model) {
         model.addAttribute("clientDetailsList", clientDetailsService.findAll());
         model.addAttribute("clientList", clientService.findAll());
