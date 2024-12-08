@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -33,22 +34,22 @@ public class ClientDetails {
     private String description;
 
     @Column(name = "hours")
-    private Float hours;
+    private Integer hours;
 
     @Column(name = "rate_per_hour")
-    private Float ratePerHour;
+    private BigDecimal ratePerHour;
 
     @Column(name = "travel_cost")
-    private Float travelCost;
+    private BigDecimal travelCost;
 
     @Column(name = "amount")
-    private Float amount;
+    private BigDecimal amount;
 
     @Column(name = "advance_payment")
-    private Float advancePayment;
+    private BigDecimal advancePayment;
     @Column(name = "number_people_work")
-    private Float number_people_work;
+    private Integer number_people_work;
 
     @Column(name = "balance_due")
-    private Float balanceDue;
+    private BigDecimal balanceDue;
 }
