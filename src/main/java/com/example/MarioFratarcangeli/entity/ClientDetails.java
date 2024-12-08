@@ -50,6 +50,6 @@ public class ClientDetails {
     @Column(name = "number_people_work")
     private Integer number_people_work;
 
-    @Column(name = "balance_due")
-    private BigDecimal balanceDue;
+    @Column(name = "residue")
+    private BigDecimal residue;
 }

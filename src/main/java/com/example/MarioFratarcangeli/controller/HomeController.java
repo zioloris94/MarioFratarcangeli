@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/")
@@ -46,7 +47,7 @@ public class HomeController {
 
             // Parsing e impostazione della data
             String dateString = payload.get("date").toString();
-            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             clientDetails.setDate(formatter.parse(dateString));
 
             // Impostazione degli altri campi
@@ -54,7 +55,11 @@ public class HomeController {
             clientDetails.setHours(Integer.valueOf(payload.get("hours").toString()));
             clientDetails.setRatePerHour(new BigDecimal(payload.get("ratePerHour").toString()));
             clientDetails.setTravelCost(new BigDecimal(payload.get("travelCost").toString()));
-            clientDetails.setAmount(new BigDecimal(payload.get("amount").toString()));
+            BigDecimal amount = new BigDecimal(payload.get("amount").toString());
+            clientDetails.setAmount(amount);
+            clientDetails.setAdvancePayment(amount);
+            BigDecimal latestResidue = clientDetailsService.findLatestResidue(clientId).orElse(BigDecimal.ZERO);
+            clientDetails.setResidue(latestResidue.add(amount));
             clientDetails.setNumber_people_work(Integer.valueOf(payload.get("number_people_work").toString()));
 
             // Salvataggio dei dati
@@ -72,6 +77,6 @@ public class HomeController {
     @GetMapping("/client-details/{clientId}")
     @ResponseBody
     public List<ClientDetails> getClientDetails(@PathVariable Long clientId) {
-        return clientDetailsService.findByClientId(clientId);
+        return clientDetailsService.findByClientIdOrderByDateAsc(clientId);
     }
 }

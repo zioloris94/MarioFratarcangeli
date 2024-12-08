@@ -25,6 +25,8 @@ function fetchClientDetails() {
                         <td>${detail.number_people_work || ""}</td>
                         <td>${detail.hours || ""}</td>
                         <td>${detail.amount || ""}</td>
+                        <td>${detail.advancePayment || ""}</td>
+                        <td>${detail.residue || ""}</td>
                     `;
                     tableBody.appendChild(row);
                 });
