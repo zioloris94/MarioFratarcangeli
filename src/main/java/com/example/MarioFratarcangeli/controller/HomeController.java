@@ -72,6 +72,26 @@ public class HomeController {
         }
     }
 
+    @PutMapping("/update-client-details")
+    public ResponseEntity<String> updateClientDetails(@RequestBody Map<String, Object> payload) {
+        Long id = Long.parseLong(payload.get("id").toString());
+        Optional<ClientDetails> optionalDetail = clientDetailsService.findById(id);
+        if (!optionalDetail.isPresent()) {
+            return ResponseEntity.badRequest().body("ClientDetails non trovato.");
+        }
+        ClientDetails detail = optionalDetail.get();
+        detail.setDescription(payload.get("description").toString());
+        detail.setRatePerHour(new BigDecimal(payload.get("ratePerHour").toString()));
+        detail.setTravelCost(new BigDecimal(payload.get("travelCost").toString()));
+        detail.setNumber_people_work(Integer.parseInt(payload.get("number_people_work").toString()));
+        detail.setHours(Integer.parseInt(payload.get("hours").toString()));
+        detail.setAmount(new BigDecimal(payload.get("amount").toString()));
+        detail.setAdvancePayment(new BigDecimal(payload.get("advancePayment").toString()));
+
+        clientDetailsService.save(detail);
+        return ResponseEntity.ok("Dettagli aggiornati con successo!");
+    }
+
 
 
     @GetMapping("/client-details/{clientId}")

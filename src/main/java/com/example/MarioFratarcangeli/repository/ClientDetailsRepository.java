@@ -14,9 +14,15 @@ import java.util.Optional;
 public interface ClientDetailsRepository extends JpaRepository<ClientDetails, Long> {
     @Query("SELECT c.residue FROM ClientDetails c WHERE c.client.id = :clientId ORDER BY c.id DESC")
     Optional<BigDecimal> findLatestResidue(@Param("clientId") Long clientId);
+
+    @Query("SELECT c FROM ClientDetails c WHERE c.id = :id")
+    Optional<ClientDetails> findById(Long id);
+
     List<ClientDetails> findByClientId(Long clientId);
+
     @Query("SELECT cd FROM ClientDetails cd WHERE cd.client.id = :clientId ORDER BY cd.date ASC")
     List<ClientDetails> findByClientIdOrderByDateAsc(@Param("clientId") Long clientId);
+
     @Query("SELECT cd FROM ClientDetails cd WHERE cd.client.id = :clientId ORDER BY cd.date DESC")
     List<ClientDetails> findByClientIdOrderByDateDesc(@Param("clientId") Long clientId);
 }

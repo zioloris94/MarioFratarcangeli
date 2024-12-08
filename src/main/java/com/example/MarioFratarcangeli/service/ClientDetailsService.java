@@ -19,6 +19,11 @@ public class ClientDetailsService {
     public List<ClientDetails> findAll() {
         return clientDetailsRepository.findAll();
     }
+
+    public Optional<ClientDetails> findById(Long id) {
+        return clientDetailsRepository.findById(id);
+    }
+
     public List<ClientDetails> findByClientId(Long clientId) {
         return clientDetailsRepository.findByClientId(clientId);
     }

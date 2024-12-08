@@ -18,15 +18,21 @@ function fetchClientDetails() {
                         year: 'numeric'
                     });
                     row.innerHTML = `
-                         <td>${formattedDate}</td>
-                        <td>${detail.description || ""}</td>
-                        <td>${detail.ratePerHour || ""}</td>
-                        <td>${detail.travelCost || ""}</td>
-                        <td>${detail.number_people_work || ""}</td>
-                        <td>${detail.hours || ""}</td>
-                        <td>${detail.amount || ""}</td>
-                        <td>${detail.advancePayment || ""}</td>
-                        <td>${detail.residue || ""}</td>
+                        <input type="hidden" value="${detail.id}" class="row-id">
+                        <td><input type="date" value="${rawDate.toISOString().split('T')[0]}" class="form-control" disabled></td>
+                        <td><input type="text" value="${detail.description || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.ratePerHour || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.travelCost || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.number_people_work || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.hours || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.amount || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.advancePayment || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.residue || ""}" class="form-control" disabled></td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editRow(this)">Modifica</button>
+                            <button class="btn btn-success btn-sm d-none" onclick="saveRow(this)">Salva</button>
+                            <button class="btn btn-secondary btn-sm d-none" onclick="cancelEdit(this)">Annulla</button>
+                        </td>
                     `;
                     tableBody.appendChild(row);
                 });
@@ -34,6 +40,88 @@ function fetchClientDetails() {
             .catch(error => console.error("Errore durante il recupero dei dettagli del cliente:", error));
     }
 }
+
+function editRow(button) {
+    const row = button.closest("tr");
+    const inputs = row.querySelectorAll("input");
+
+    // Memorizza i valori originali come attributi data-* sugli input
+    inputs.forEach(input => {
+        input.setAttribute("data-original-value", input.value);
+        input.removeAttribute("disabled");
+    });
+
+    // Mostra i pulsanti Salva e Annulla, nascondi il pulsante Modifica
+    button.classList.add("d-none");
+    row.querySelector(".btn-success").classList.remove("d-none");
+    row.querySelector(".btn-secondary").classList.remove("d-none");
+}
+
+
+function saveRow(button) {
+    const row = button.closest("tr");
+    const inputs = row.querySelectorAll("input");
+    const id = row.querySelector(".row-id").value;
+
+    // Raccogli i dati della riga
+    const rowData = { id }; // Include l'ID
+    inputs.forEach((input, index) => {
+        const fieldName = [
+            "id","date", "description", "ratePerHour", "travelCost",
+            "number_people_work", "hours", "amount", "advancePayment", "residue"
+        ][index];
+        rowData[fieldName] = input.value;
+    });
+
+    console.log("Dati inviati:", rowData);
+
+    // Disabilita tutti gli input della riga
+    inputs.forEach(input => input.setAttribute("disabled", "disabled"));
+
+    // Mostra il pulsante Modifica e nascondi Salva e Annulla
+    button.classList.add("d-none");
+    row.querySelector(".btn-warning").classList.remove("d-none");
+    row.querySelector(".btn-secondary").classList.add("d-none");
+
+    // Invia i dati al backend
+    fetch(`/update-client-details`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(rowData)
+    })
+        .then(response => {
+            if (response.ok) {
+                console.log("Riga aggiornata con successo");
+            } else {
+                throw new Error("Errore durante l'aggiornamento");
+            }
+        })
+        .catch(error => {
+            console.error("Errore:", error);
+            alert("Errore durante l'aggiornamento della riga");
+        });
+}
+
+
+function cancelEdit(button) {
+    const row = button.closest("tr");
+    const inputs = row.querySelectorAll("input");
+
+    // Ripristina i valori originali dagli attributi data-original-value
+    inputs.forEach(input => {
+        input.value = input.getAttribute("data-original-value");
+        input.setAttribute("disabled", "disabled");
+    });
+
+    // Mostra il pulsante Modifica e nascondi Salva e Annulla
+    button.classList.add("d-none");
+    row.querySelector(".btn-warning").classList.remove("d-none");
+    row.querySelector(".btn-success").classList.add("d-none");
+}
+
+
 
 document.getElementById("saveButton").addEventListener("click", function () {
     const form = document.getElementById("clientDetailsForm");
