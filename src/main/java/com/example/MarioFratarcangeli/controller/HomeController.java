@@ -26,7 +26,11 @@ public class HomeController {
         this.clientService = clientService;
         this.clientDetailsService = clientDetailsService;
     }
-    @GetMapping("/")
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+    @GetMapping("/home")
     public String showHomePage(Model model) {
         model.addAttribute("clientDetailsList", clientDetailsService.findAll());
         model.addAttribute("clientList", clientService.findAll());
