@@ -10,11 +10,21 @@ function fetchClientDetails() {
                 tableBody.innerHTML = ""; // Svuota la tabella
                 data.forEach(detail => {
                     const row = document.createElement("tr");
+                    // Formatta la data
+                    const rawDate = new Date(detail.date);
+                    const formattedDate = rawDate.toLocaleDateString('it-IT', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
                     row.innerHTML = `
-                        <td>${detail.date}</td>
-                        <td>${detail.description}</td>
-                        <td>${detail.hours}</td>
-                        <td>${detail.amount}</td>
+                         <td>${formattedDate}</td>
+                        <td>${detail.description || ""}</td>
+                        <td>${detail.ratePerHour || ""}</td>
+                        <td>${detail.travelCost || ""}</td>
+                        <td>${detail.number_people_work || ""}</td>
+                        <td>${detail.hours || ""}</td>
+                        <td>${detail.amount || ""}</td>
                     `;
                     tableBody.appendChild(row);
                 });
