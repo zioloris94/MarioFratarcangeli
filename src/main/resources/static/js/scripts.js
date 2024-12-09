@@ -149,11 +149,33 @@ document.getElementById("saveButton").addEventListener("click", function () {
                 throw new Error("Errore durante il salvataggio");
             }
         })
-        .then(alert)
+        .then(message => {
+            alert(message); // Mostra il messaggio di successo
+            // Aggiorna la tabella dei dettagli del cliente
+            const clientSelect = document.getElementById("clientSelect");
+            if (clientSelect && clientSelect.value) {
+                fetchClientDetails(); // Aggiorna i dettagli del cliente
+            }
+        })
         .catch(error => {
             console.error("Errore:", error);
             alert("Errore durante il salvataggio");
         });
+});
+
+// Sincronizza le due select
+document.getElementById("clientId").addEventListener("change", function () {
+    const selectedValue = this.value; // Ottieni il valore selezionato
+    const clientSelect = document.getElementById("clientSelect"); // Trova l'altra select
+
+    if (clientSelect) {
+        clientSelect.value = selectedValue; // Imposta il valore sulla seconda select
+
+        // Se vuoi che cambi il comportamento, come ricaricare i dettagli cliente:
+        if (selectedValue) {
+            fetchClientDetails(); // Richiama la funzione per aggiornare i dettagli
+        }
+    }
 });
 
 function calculateAmount() {

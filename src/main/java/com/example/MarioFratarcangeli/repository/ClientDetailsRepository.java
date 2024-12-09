@@ -15,6 +15,9 @@ public interface ClientDetailsRepository extends JpaRepository<ClientDetails, Lo
     @Query("SELECT c.residue FROM ClientDetails c WHERE c.client.id = :clientId ORDER BY c.id DESC")
     Optional<BigDecimal> findLatestResidue(@Param("clientId") Long clientId);
 
+    @Query(value = "SELECT MAX(c.residue) FROM ClientDetails c WHERE c.client.id = :clientId", nativeQuery = false)
+    Optional<BigDecimal> findHighestResidue(@Param("clientId") Long clientId);
+
     @Query("SELECT c FROM ClientDetails c WHERE c.id = :id")
     Optional<ClientDetails> findById(Long id);
 

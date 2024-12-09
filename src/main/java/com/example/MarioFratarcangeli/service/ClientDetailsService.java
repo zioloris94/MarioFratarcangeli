@@ -30,6 +30,10 @@ public class ClientDetailsService {
     public Optional<BigDecimal> findLatestResidue(Long clientId) {
         return clientDetailsRepository.findLatestResidue(clientId);
     }
+
+    public Optional<BigDecimal> findHighestResidue(Long clientId) {
+        return clientDetailsRepository.findHighestResidue(clientId);
+    }
     public List<ClientDetails> findByClientIdOrderByDateAsc(Long clientId) {
         return clientDetailsRepository.findByClientIdOrderByDateAsc(clientId);
     }

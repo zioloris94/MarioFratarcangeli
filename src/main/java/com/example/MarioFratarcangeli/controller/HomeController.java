@@ -62,8 +62,8 @@ public class HomeController {
             BigDecimal amount = new BigDecimal(payload.get("amount").toString());
             clientDetails.setAmount(amount);
             clientDetails.setAdvancePayment(amount);
-            BigDecimal latestResidue = clientDetailsService.findLatestResidue(clientId).orElse(BigDecimal.ZERO);
-            clientDetails.setResidue(latestResidue.add(amount));
+            BigDecimal highestResidue = clientDetailsService.findHighestResidue(clientId).orElse(BigDecimal.ZERO);
+            clientDetails.setResidue(highestResidue.add(amount));
             clientDetails.setNumber_people_work(Integer.valueOf(payload.get("number_people_work").toString()));
 
             // Salvataggio dei dati

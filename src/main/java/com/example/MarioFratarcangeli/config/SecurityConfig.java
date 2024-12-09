@@ -17,6 +17,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login", "/css/**", "/js/**").permitAll() // Permetti l'accesso senza autenticazione
                 .anyRequest().authenticated() // Tutti gli altri richiedono autenticazione
@@ -28,7 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .logoutSuccessUrl("/login") // Reindirizza alla pagina di login dopo il logout
-                .invalidateHttpSession(true)
+                .invalidateHttpSession(false)
                 .permitAll();
     }
 
