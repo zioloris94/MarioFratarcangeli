@@ -117,6 +117,6 @@ public class HomeController {
     @GetMapping("/client-details/{clientId}")
     @ResponseBody
     public List<ClientDetails> getClientDetails(@PathVariable Long clientId) {
-        return clientDetailsService.findByClientIdOrderByDateAsc(clientId);
+        return clientDetailsService.findByClientIdOrderByDateDesc(clientId);
     }
 }
