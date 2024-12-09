@@ -29,6 +29,7 @@ function fetchClientDetails() {
                             <button class="btn btn-warning btn-sm" onclick="editRow(this)">Modifica</button>
                             <button class="btn btn-success btn-sm d-none" onclick="saveRow(this)">Salva</button>
                             <button class="btn btn-secondary btn-sm d-none" onclick="cancelEdit(this)">Annulla</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRow(${detail.id}, this)">Elimina</button>
                         </td>
                     `;
                     tableBody.appendChild(row);
@@ -193,6 +194,29 @@ document.getElementById("toggleButton").addEventListener("click", function () {
         this.setAttribute("aria-expanded", "true");
     }
 });
+
+function deleteRow(detailId, button) {
+    if (confirm("Sei sicuro di voler eliminare questo dettaglio cliente?")) {
+        fetch(`/client-details/${detailId}`, {
+            method: "DELETE"
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Riga eliminata con successo");
+                    // Rimuove la riga dalla tabella
+                    const row = button.closest("tr");
+                    row.remove();
+                } else {
+                    throw new Error("Errore durante l'eliminazione della riga");
+                }
+            })
+            .catch(error => {
+                console.error("Errore:", error);
+                alert("Errore durante l'eliminazione della riga");
+            });
+    }
+}
+
 
 
 function calculateAmount() {

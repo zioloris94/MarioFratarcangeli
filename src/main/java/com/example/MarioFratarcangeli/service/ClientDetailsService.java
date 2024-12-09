@@ -40,6 +40,9 @@ public class ClientDetailsService {
     public List<ClientDetails> findByClientIdOrderByDateDesc(Long clientId) {
         return clientDetailsRepository.findByClientIdOrderByDateDesc(clientId);
     }
+    public void deleteById(Long id) {
+        clientDetailsRepository.deleteById(id);
+    }
     public ClientDetails save(ClientDetails clientDetails) {
         return clientDetailsRepository.save(clientDetails);
     }

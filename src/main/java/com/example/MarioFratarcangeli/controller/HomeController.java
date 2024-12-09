@@ -104,7 +104,15 @@ public class HomeController {
         }
     }
 
-
+    @DeleteMapping("/client-details/{id}")
+    public ResponseEntity<String> deleteClientDetails(@PathVariable Long id) {
+        try {
+            clientDetailsService.deleteById(id);
+            return ResponseEntity.ok("Dettaglio cliente eliminato con successo!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante l'eliminazione del dettaglio cliente.");
+        }
+    }
 
     @GetMapping("/client-details/{clientId}")
     @ResponseBody
