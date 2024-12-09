@@ -40,16 +40,16 @@ public class ClientDetails {
     private BigDecimal ratePerHour;
 
     @Column(name = "travel_cost")
-    private BigDecimal travelCost;
+    private BigDecimal travelCost = new BigDecimal(0);
 
     @Column(name = "amount")
-    private BigDecimal amount;
+    private BigDecimal amount = new BigDecimal(0);
 
     @Column(name = "advance_payment")
-    private BigDecimal advancePayment;
+    private BigDecimal advancePayment = new BigDecimal(0);
     @Column(name = "number_people_work")
     private Integer number_people_work;
 
     @Column(name = "residue")
-    private BigDecimal residue;
+    private BigDecimal residue = new BigDecimal(0);
 }

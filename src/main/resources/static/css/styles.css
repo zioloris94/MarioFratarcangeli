@@ -1,0 +1,15 @@
+/* Stato iniziale nascosto */
+.hidden {
+    max-height: 0;
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden; /* Assicura che il contenuto non sia visibile */
+    transition: all 0.3s ease; /* Animazione fluida */
+}
+
+/* Quando visibile */
+#clientDetailsForm {
+    transition: all 0.3s ease;
+    overflow: visible;
+}

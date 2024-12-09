@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
@@ -78,22 +79,29 @@ public class HomeController {
 
     @PutMapping("/update-client-details")
     public ResponseEntity<String> updateClientDetails(@RequestBody Map<String, Object> payload) {
-        Long id = Long.parseLong(payload.get("id").toString());
-        Optional<ClientDetails> optionalDetail = clientDetailsService.findById(id);
-        if (!optionalDetail.isPresent()) {
-            return ResponseEntity.badRequest().body("ClientDetails non trovato.");
+        try {
+            Long id = Long.parseLong(payload.get("id").toString());
+            Optional<ClientDetails> optionalDetail = clientDetailsService.findById(id);
+            if (!optionalDetail.isPresent()) {
+                return ResponseEntity.badRequest().body("ClientDetails non trovato.");
+            }
+            ClientDetails detail = optionalDetail.get();
+            String dateString = payload.get("date").toString();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            detail.setDate(formatter.parse(dateString));
+            detail.setDescription(payload.get("description").toString());
+            detail.setRatePerHour(new BigDecimal(payload.get("ratePerHour").toString()));
+            detail.setTravelCost(new BigDecimal(payload.get("travelCost").toString()));
+            detail.setNumber_people_work(Integer.parseInt(payload.get("number_people_work").toString()));
+            detail.setHours(Integer.parseInt(payload.get("hours").toString()));
+            detail.setAmount(new BigDecimal(payload.get("amount").toString()));
+            detail.setAdvancePayment(new BigDecimal(payload.get("advancePayment").toString()));
+            clientDetailsService.save(detail);
+            return ResponseEntity.ok("Dettagli aggiornati con successo!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Errore durante il salvataggio del lavoro.");
         }
-        ClientDetails detail = optionalDetail.get();
-        detail.setDescription(payload.get("description").toString());
-        detail.setRatePerHour(new BigDecimal(payload.get("ratePerHour").toString()));
-        detail.setTravelCost(new BigDecimal(payload.get("travelCost").toString()));
-        detail.setNumber_people_work(Integer.parseInt(payload.get("number_people_work").toString()));
-        detail.setHours(Integer.parseInt(payload.get("hours").toString()));
-        detail.setAmount(new BigDecimal(payload.get("amount").toString()));
-        detail.setAdvancePayment(new BigDecimal(payload.get("advancePayment").toString()));
-
-        clientDetailsService.save(detail);
-        return ResponseEntity.ok("Dettagli aggiornati con successo!");
     }
 
 

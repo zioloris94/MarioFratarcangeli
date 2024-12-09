@@ -12,22 +12,19 @@ function fetchClientDetails() {
                     const row = document.createElement("tr");
                     // Formatta la data
                     const rawDate = new Date(detail.date);
-                    const formattedDate = rawDate.toLocaleDateString('it-IT', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
+                    rawDate.setDate(rawDate.getDate() + 1);
+                    const formattedDate = rawDate.toISOString().split('T')[0];
                     row.innerHTML = `
                         <input type="hidden" value="${detail.id}" class="row-id">
-                        <td><input type="date" value="${rawDate.toISOString().split('T')[0]}" class="form-control" disabled></td>
+                        <td><input type="date" value="${formattedDate}" class="form-control" disabled></td>
                         <td><input type="text" value="${detail.description || ""}" class="form-control" disabled></td>
                         <td><input type="number" value="${detail.ratePerHour || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.travelCost || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.travelCost || "0"}" class="form-control" disabled></td>
                         <td><input type="number" value="${detail.number_people_work || ""}" class="form-control" disabled></td>
                         <td><input type="number" value="${detail.hours || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.amount || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.advancePayment || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.residue || ""}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.amount || "0"}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.advancePayment || "0"}" class="form-control" disabled></td>
+                        <td><input type="number" value="${detail.residue || "0"}" class="form-control" disabled></td>
                         <td>
                             <button class="btn btn-warning btn-sm" onclick="editRow(this)">Modifica</button>
                             <button class="btn btn-success btn-sm d-none" onclick="saveRow(this)">Salva</button>
@@ -177,6 +174,26 @@ document.getElementById("clientId").addEventListener("change", function () {
         }
     }
 });
+
+document.getElementById("toggleButton").addEventListener("click", function () {
+    const form = document.getElementById("clientDetailsForm");
+    const toggleIcon = document.getElementById("toggleIcon");
+
+    // Aggiungi/rimuovi classe "hidden" per nascondere/mostrare il form
+    form.classList.toggle("hidden");
+
+    // Cambia l'icona della freccia
+    if (form.classList.contains("hidden")) {
+        toggleIcon.classList.remove("bi-chevron-up");
+        toggleIcon.classList.add("bi-chevron-down");
+        this.setAttribute("aria-expanded", "false");
+    } else {
+        toggleIcon.classList.remove("bi-chevron-down");
+        toggleIcon.classList.add("bi-chevron-up");
+        this.setAttribute("aria-expanded", "true");
+    }
+});
+
 
 function calculateAmount() {
     const hours = parseFloat(document.getElementById('hours').value) || 0;
