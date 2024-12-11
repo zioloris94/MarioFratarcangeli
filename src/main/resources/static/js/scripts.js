@@ -1,52 +1,92 @@
+let dataTable; // Variabile globale per DataTables
+
 function fetchClientDetails() {
     const clientId = document.getElementById("clientSelect").value;
     console.log("Cliente selezionato:", clientId);
+
     if (clientId) {
         fetch(`/client-details/${clientId}`)
             .then(response => response.json())
             .then(data => {
                 console.log("Dati ricevuti dal server:", data);
-                const tableBody = document.getElementById("clientDetailsTable");
+
+                // Distruggi l'istanza esistente di DataTables, se presente
+                if (dataTable) {
+                    dataTable.destroy();
+                }
+
+                // Ripopola la tabella
+                const tableBody = document.getElementById("clientDetailsTable").querySelector("tbody");
                 tableBody.innerHTML = ""; // Svuota la tabella
+
                 data.forEach(detail => {
-                    const row = document.createElement("tr");
-                    // Formatta la data
-                    const rawDate = new Date(detail.date);
-                    rawDate.setDate(rawDate.getDate() + 1);
-                    const formattedDate = rawDate.toISOString().split('T')[0];
-                    row.innerHTML = `
-                        <input type="hidden" value="${detail.id}" class="row-id">
-                        <td><input type="date" value="${formattedDate}" class="form-control" disabled></td>
-                        <td><input type="text" value="${detail.description || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.ratePerHour || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.travelCost || "0"}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.number_people_work || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.hours || ""}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.amount || "0"}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.advancePayment || "0"}" class="form-control" disabled></td>
-                        <td><input type="number" value="${detail.residue || "0"}" class="form-control" disabled></td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" onclick="editRow(this)">Modifica</button>
-                            <button class="btn btn-success btn-sm d-none" onclick="saveRow(this)">Salva</button>
-                            <button class="btn btn-secondary btn-sm d-none" onclick="cancelEdit(this)">Annulla</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteRow(${detail.id}, this)">Elimina</button>
-                        </td>
+                    const row = `
+                        <tr>
+                            <input type="hidden" value="${detail.id}" class="row-id">
+                            <td><span class="output" data-field="date">${formatDate(detail.date)}</span></td>
+                            <td><span class="output" data-field="description">${detail.description || ""}</span></td>
+                            <td><span class="output" data-field="ratePerHour">${detail.ratePerHour || ""}</span></td>
+                            <td><span class="output" data-field="travelCost">${detail.travelCost || "0"}</span></td>
+                            <td><span class="output" data-field="number_people_work">${detail.number_people_work || ""}</span></td>
+                            <td><span class="output" data-field="hours">${detail.hours || ""}</span></td>
+                            <td><span class="output" data-field="amount">${detail.amount || "0"}</span></td>
+                            <td><span class="output" data-field="advancePayment">${detail.advancePayment || "0"}</span></td>
+                            <td><span class="output" data-field="residue">${detail.residue || "0"}</span></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editRow(this)">Modifica</button>
+                                <button class="btn btn-success btn-sm d-none" onclick="saveRow(this)">Salva</button>
+                                <button class="btn btn-secondary btn-sm d-none" onclick="cancelEdit(this)">Annulla</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteRow(${detail.id}, this)">Elimina</button>
+                            </td>
+                        </tr>
                     `;
-                    tableBody.appendChild(row);
+                    tableBody.innerHTML += row;
+                });
+
+                // Inizializza nuovamente DataTables
+                dataTable = $('#clientDetailsTable').DataTable({
+                    paging: true,
+                    pageLength: 5,
+                    searching: true,
+                    ordering: true,
+                    language: {
+                        paginate: {
+                            next: "Successivo",
+                            previous: "Precedente"
+                        },
+                        lengthMenu: "Mostra _MENU_ righe",
+                        search: "Cerca:",
+                        info: "Mostra da _START_ a _END_ di _TOTAL_ righe"
+                    }
                 });
             })
             .catch(error => console.error("Errore durante il recupero dei dettagli del cliente:", error));
     }
 }
 
+// Funzione per formattare la data in formato YYYY-MM-DD
+function formatDate(date) {
+    const rawDate = new Date(date);
+    rawDate.setDate(rawDate.getDate() + 1); // Correzione della data
+    return rawDate.toISOString().split('T')[0];
+}
+
 function editRow(button) {
     const row = button.closest("tr");
-    const inputs = row.querySelectorAll("input");
+    const outputs = row.querySelectorAll(".output");
 
-    // Memorizza i valori originali come attributi data-* sugli input
-    inputs.forEach(input => {
-        input.setAttribute("data-original-value", input.value);
-        input.removeAttribute("disabled");
+    // Trasforma ogni elemento <span> in <input>
+    outputs.forEach(output => {
+        const field = output.getAttribute("data-field");
+        const value = output.textContent.trim();
+        const input = document.createElement("input");
+
+        input.type = field === "date" ? "date" : "text";
+        input.value = value;
+        input.className = "form-control editable";
+        input.setAttribute("data-field", field);
+
+        output.replaceWith(input);
     });
 
     // Mostra i pulsanti Salva e Annulla, nascondi il pulsante Modifica
@@ -58,30 +98,17 @@ function editRow(button) {
 
 function saveRow(button) {
     const row = button.closest("tr");
-    const inputs = row.querySelectorAll("input");
+    const inputs = row.querySelectorAll(".editable");
     const id = row.querySelector(".row-id").value;
 
-    // Raccogli i dati della riga
     const rowData = { id }; // Include l'ID
-    inputs.forEach((input, index) => {
-        const fieldName = [
-            "id","date", "description", "ratePerHour", "travelCost",
-            "number_people_work", "hours", "amount", "advancePayment", "residue"
-        ][index];
-        rowData[fieldName] = input.value;
+    inputs.forEach(input => {
+        const field = input.getAttribute("data-field");
+        rowData[field] = input.value;
     });
 
     console.log("Dati inviati:", rowData);
 
-    // Disabilita tutti gli input della riga
-    inputs.forEach(input => input.setAttribute("disabled", "disabled"));
-
-    // Mostra il pulsante Modifica e nascondi Salva e Annulla
-    button.classList.add("d-none");
-    row.querySelector(".btn-warning").classList.remove("d-none");
-    row.querySelector(".btn-secondary").classList.add("d-none");
-
-    // Invia i dati al backend
     fetch(`/update-client-details`, {
         method: "PUT",
         headers: {
@@ -92,6 +119,24 @@ function saveRow(button) {
         .then(response => {
             if (response.ok) {
                 console.log("Riga aggiornata con successo");
+
+                // Trasforma ogni <input> in <span>
+                inputs.forEach(input => {
+                    const field = input.getAttribute("data-field");
+                    const value = input.value;
+                    const span = document.createElement("span");
+
+                    span.className = "output";
+                    span.setAttribute("data-field", field);
+                    span.textContent = value;
+
+                    input.replaceWith(span);
+                });
+
+                // Mostra il pulsante Modifica e nascondi Salva e Annulla
+                button.classList.add("d-none");
+                row.querySelector(".btn-warning").classList.remove("d-none");
+                row.querySelector(".btn-secondary").classList.add("d-none");
             } else {
                 throw new Error("Errore durante l'aggiornamento");
             }
@@ -102,15 +147,21 @@ function saveRow(button) {
         });
 }
 
-
 function cancelEdit(button) {
     const row = button.closest("tr");
-    const inputs = row.querySelectorAll("input");
+    const inputs = row.querySelectorAll(".editable");
 
-    // Ripristina i valori originali dagli attributi data-original-value
+    // Trasforma ogni elemento <input> in <span>
     inputs.forEach(input => {
-        input.value = input.getAttribute("data-original-value");
-        input.setAttribute("disabled", "disabled");
+        const field = input.getAttribute("data-field");
+        const value = input.getAttribute("data-original-value") || input.value;
+        const span = document.createElement("span");
+
+        span.className = "output";
+        span.setAttribute("data-field", field);
+        span.textContent = value;
+
+        input.replaceWith(span);
     });
 
     // Mostra il pulsante Modifica e nascondi Salva e Annulla
@@ -184,9 +235,11 @@ function deleteRow(detailId, button) {
             .then(response => {
                 if (response.ok) {
                     console.log("Riga eliminata con successo");
-                    // Rimuove la riga dalla tabella
+
+                    // Rimuove la riga dalla tabella usando DataTables
                     const row = button.closest("tr");
-                    row.remove();
+                    const dataTableRow = dataTable.row(row); // Identifica la riga nel contesto di DataTables
+                    dataTableRow.remove().draw(); // Rimuove la riga e aggiorna la tabella
                 } else {
                     throw new Error("Errore durante l'eliminazione della riga");
                 }
@@ -197,8 +250,6 @@ function deleteRow(detailId, button) {
             });
     }
 }
-
-
 
 function calculateAmount() {
     const hours = parseFloat(document.getElementById('hours').value) || 0;
