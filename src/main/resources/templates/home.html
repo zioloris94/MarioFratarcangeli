@@ -9,15 +9,10 @@
 <body>
 
 <section>
-    <h2>
-        Inserimento Nuovo Lavoro
-        <button id="toggleButton" class="btn btn-link p-0" style="font-size: 1.2em; vertical-align: middle;" aria-expanded="false" aria-controls="clientDetailsForm">
-            <span id="toggleIcon" class="bi bi-chevron-down"></span>
-        </button>
-    </h2>
-    <form id="clientDetailsForm" method="post" class="row g-3 hidden">
-        <!-- Prima riga -->
-        <div class="col-md-3">
+    <h2>Inserimento Nuovo Lavoro</h2>
+    <form id="clientDetailsForm" method="post" class="row g-3 align-items-end">
+        <!-- Cliente -->
+        <div class="col-md-2">
             <label for="clientId" class="form-label">Cliente:</label>
             <select id="clientId" name="clientId" class="form-select" required>
                 <option value="" disabled selected>Seleziona un cliente</option>
@@ -25,47 +20,54 @@
             </select>
         </div>
 
-        <div class="col-md-2">
+        <!-- Data -->
+        <div class="col-md-1">
             <label for="date" class="form-label">Data:</label>
-            <input type="date" id="date" name="date"  class="form-control" required>
+            <input type="date" id="date" name="date" class="form-control" required>
         </div>
 
-        <div class="col-md-7">
-            <label for="description" class="form-label">Descrizione:</label>
-            <textarea id="description" name="description" class="form-control" required></textarea>
-        </div>
-
-        <!-- Seconda riga -->
+        <!-- Descrizione -->
         <div class="col-md-3">
+            <label for="description" class="form-label">Descrizione:</label>
+            <textarea id="description" name="description" class="form-control" rows="1" required></textarea>
+        </div>
+
+        <!-- Ore -->
+        <div class="col-md-1">
             <label for="hours" class="form-label">Ore:</label>
             <input type="number" id="hours" name="hours" class="form-control" required>
         </div>
 
-        <div class="col-md-3">
+        <!-- Costo Orario -->
+        <div class="col-md-1">
             <label for="ratePerHour" class="form-label">Costo Orario:</label>
             <input type="number" id="ratePerHour" name="ratePerHour" class="form-control" required>
         </div>
 
-        <div class="col-md-3">
+        <!-- Costo Viaggio -->
+        <div class="col-md-1">
             <label for="travelCost" class="form-label">Costo Viaggio:</label>
             <input type="number" id="travelCost" name="travelCost" class="form-control" required>
         </div>
 
-        <div class="col-md-3">
-            <label for="numberPeopleWork" class="form-label">Numero Di Persone:</label>
+        <!-- Numero di Persone -->
+        <div class="col-md-1">
+            <label for="numberPeopleWork" class="form-label">Persone:</label>
             <input type="number" id="numberPeopleWork" name="number_people_work" class="form-control" required>
         </div>
 
-        <!-- Terza riga -->
-        <div class="col-md-8 mt-4">
-            <strong>Totale: </strong>
-            <span id="amountLabel" >0.00</span> €
+        <!-- Totale -->
+        <div class="col-md-1">
+            <label for="amountLabel" class="form-label">Totale:</label>
+            <div class="form-control-plaintext">
+                <strong id="amountLabel">0.00</strong> €
+            </div>
             <input type="hidden" id="amount" name="amount" value="0.00">
         </div>
 
-        <!-- Quarta riga -->
-        <div class="col-md-12 mt-3">
-            <button type="button" id="saveButton" class="btn btn-primary">Inserisci Lavoro</button>
+        <!-- Pulsante Salva -->
+        <div class="col-md-1">
+            <button type="button" id="saveButton" class="btn btn-primary w-100">Inserisci Lavoro</button>
         </div>
     </form>
 </section>

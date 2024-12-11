@@ -176,25 +176,6 @@ document.getElementById("clientId").addEventListener("change", function () {
     }
 });
 
-document.getElementById("toggleButton").addEventListener("click", function () {
-    const form = document.getElementById("clientDetailsForm");
-    const toggleIcon = document.getElementById("toggleIcon");
-
-    // Aggiungi/rimuovi classe "hidden" per nascondere/mostrare il form
-    form.classList.toggle("hidden");
-
-    // Cambia l'icona della freccia
-    if (form.classList.contains("hidden")) {
-        toggleIcon.classList.remove("bi-chevron-up");
-        toggleIcon.classList.add("bi-chevron-down");
-        this.setAttribute("aria-expanded", "false");
-    } else {
-        toggleIcon.classList.remove("bi-chevron-down");
-        toggleIcon.classList.add("bi-chevron-up");
-        this.setAttribute("aria-expanded", "true");
-    }
-});
-
 function deleteRow(detailId, button) {
     if (confirm("Sei sicuro di voler eliminare questo dettaglio cliente?")) {
         fetch(`/client-details/${detailId}`, {
