@@ -66,10 +66,13 @@ function fetchClientDetails() {
 }
 
 // Funzione per formattare la data in formato YYYY-MM-DD
+// Funzione per formattare la data in formato gg-MM-aaaa
 function formatDate(date) {
     const rawDate = new Date(date);
-    rawDate.setDate(rawDate.getDate() + 1); // Correzione della data
-    return rawDate.toISOString().split('T')[0];
+    const day = String(rawDate.getDate()).padStart(2, '0'); // Aggiungi zero iniziale se necessario
+    const month = String(rawDate.getMonth() + 1).padStart(2, '0'); // I mesi partono da 0
+    const year = rawDate.getFullYear();
+    return `${day}-${month}-${year}`; // Restituisce il formato gg-MM-aaaa
 }
 
 function editRow(button) {
