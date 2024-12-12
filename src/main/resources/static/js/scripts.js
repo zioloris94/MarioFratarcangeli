@@ -49,6 +49,7 @@ function fetchClientDetails() {
                     pageLength: 5,
                     searching: true,
                     ordering: true,
+                    order: [[0, 'desc']],
                     language: {
                         paginate: {
                             next: "Successivo",
