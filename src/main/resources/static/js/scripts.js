@@ -47,7 +47,7 @@ function fetchClientDetails() {
                 dataTable = $('#clientDetailsTable').DataTable({
                     paging: true,
                     pageLength: 5,
-                    searching: true,
+                    searching: false,
                     ordering: true,
                     order: [[0, 'desc']],
                     language: {
@@ -251,6 +251,71 @@ function deleteRow(detailId, button) {
             });
     }
 }
+
+document.getElementById("saveNewClientButton").addEventListener("click", function () {
+    const clientName = document.getElementById("clientName").value;
+
+    if (!clientName) {
+        alert("Il nome del cliente è obbligatorio!");
+        return;
+    }
+
+    fetch("/save-client", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: clientName }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+            }
+            return response.text();
+        })
+        .then(message => {
+            alert(message);
+            document.getElementById("newClientForm").reset();
+            updateClientDropdown(); // Aggiorna i dropdown con i nuovi clienti
+        })
+        .catch(error => {
+            console.error("Errore:", error);
+            alert("Errore nell'inserimento del cliente: " + error.message);
+        });
+});
+
+function updateClientDropdown() {
+    fetch("/client-list")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Errore durante il recupero della lista clienti");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const clientSelect = document.getElementById("clientSelect");
+            const clientId = document.getElementById("clientId");
+
+            // Svuota i dropdown
+            clientSelect.innerHTML = '<option value="" disabled selected>Seleziona un cliente</option>';
+            clientId.innerHTML = '<option value="" disabled selected>Seleziona un cliente</option>';
+
+            // Popola i dropdown con i nuovi clienti
+            data.forEach(client => {
+                const option1 = document.createElement("option");
+                option1.value = client.id;
+                option1.textContent = client.name;
+
+                const option2 = option1.cloneNode(true);
+
+                clientSelect.appendChild(option1);
+                clientId.appendChild(option2);
+            });
+        })
+        .catch(error => console.error("Errore durante l'aggiornamento dei dropdown:", error));
+}
+
+
 
 function calculateAmount() {
     const hours = parseFloat(document.getElementById('hours').value) || 0;

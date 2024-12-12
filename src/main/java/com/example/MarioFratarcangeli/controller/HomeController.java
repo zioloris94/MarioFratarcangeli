@@ -119,4 +119,33 @@ public class HomeController {
     public List<ClientDetails> getClientDetails(@PathVariable Long clientId) {
         return clientDetailsService.findByClientIdOrderByDateDesc(clientId);
     }
+
+    @GetMapping("/client-list")
+    @ResponseBody
+    public List<Client> getClientList() {
+        return clientService.findAll();
+    }
+
+
+    @PostMapping("/save-client")
+    public ResponseEntity<String> saveClient(@RequestBody Map<String, String> payload) {
+        try {
+            // Estrai il nome del cliente dal payload
+            String clientName = payload.get("name");
+            if (clientName == null || clientName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Il nome del cliente è obbligatorio.");
+            }
+
+            // Crea e salva il nuovo cliente
+            Client client = new Client();
+            client.setName(clientName.trim());
+            clientService.save(client);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body("Cliente aggiunto con successo!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Errore durante l'aggiunta del cliente.");
+        }
+    }
+
 }
