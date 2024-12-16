@@ -62,9 +62,7 @@ public class HomeController {
             clientDetails.setTravelCost(new BigDecimal(payload.get("travelCost").toString()));
             BigDecimal amount = new BigDecimal(payload.get("amount").toString());
             clientDetails.setAmount(amount);
-            clientDetails.setAdvancePayment(amount);
-            BigDecimal highestResidue = clientDetailsService.findHighestResidue(clientId).orElse(BigDecimal.ZERO);
-            clientDetails.setResidue(highestResidue.add(amount));
+            clientDetails.setResidue(amount);
             clientDetails.setNumber_people_work(Integer.valueOf(payload.get("number_people_work").toString()));
 
             // Salvataggio dei dati
@@ -95,7 +93,7 @@ public class HomeController {
             detail.setNumber_people_work(Integer.parseInt(payload.get("number_people_work").toString()));
             detail.setHours(Integer.parseInt(payload.get("hours").toString()));
             detail.setAmount(new BigDecimal(payload.get("amount").toString()));
-            detail.setAdvancePayment(new BigDecimal(payload.get("advancePayment").toString()));
+            detail.setResidue(new BigDecimal(payload.get("residue").toString()));
             clientDetailsService.save(detail);
             return ResponseEntity.ok("Dettagli aggiornati con successo!");
         } catch (Exception e) {

@@ -45,8 +45,6 @@ public class ClientDetails {
     @Column(name = "amount")
     private BigDecimal amount = new BigDecimal(0);
 
-    @Column(name = "advance_payment")
-    private BigDecimal advancePayment = new BigDecimal(0);
     @Column(name = "number_people_work")
     private Integer number_people_work;
 
