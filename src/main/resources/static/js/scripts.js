@@ -30,7 +30,6 @@ function fetchClientDetails() {
                             <td><span class="output" data-field="number_people_work">${detail.number_people_work || ""}</span></td>
                             <td><span class="output" data-field="hours">${detail.hours || ""}</span></td>
                             <td><span class="output" data-field="amount">${detail.amount || "0"}</span></td>
-                            <td><span class="output" data-field="advancePayment">${detail.advancePayment || "0"}</span></td>
                             <td><span class="output" data-field="residue">${detail.residue || "0"}</span></td>
                             <td>
                                 <button class="btn btn-warning btn-sm" onclick="editRow(this)">Modifica</button>
@@ -82,14 +81,16 @@ function editRow(button) {
     // Trasforma ogni elemento <span> in <input>
     outputs.forEach(output => {
         const field = output.getAttribute("data-field");
-        let value = output.textContent.trim(); // Ottieni il valore corrente
+        let value = output.textContent.trim(); // Ottieni il valore corrente del campo
 
         const input = document.createElement("input");
         if (field === "date") {
-            // Converte la data esistente (se presente) in formato YYYY-MM-DD
+            // Converte la data in formato YYYY-MM-DD per il campo input type="date"
             const [day, month, year] = value.split("-");
             if (day && month && year) {
-                value = `${year}-${month}-${day}`; // Formatta in YYYY-MM-DD
+                value = `${year}-${month}-${day}`; // Converte in formato YYYY-MM-DD
+            } else {
+                console.error(`Formato data non valido: ${value}`);
             }
 
             input.type = "date";
@@ -97,7 +98,7 @@ function editRow(button) {
             input.type = "text";
         }
 
-        input.value = value; // Imposta il valore corrente
+        input.value = value; // Imposta il valore corrente nel campo input
         input.className = "form-control editable";
         input.setAttribute("data-field", field);
 
@@ -114,7 +115,6 @@ function editRow(button) {
 }
 
 
-
 function saveRow(button) {
     const row = button.closest("tr");
     const inputs = row.querySelectorAll(".editable");
@@ -126,10 +126,10 @@ function saveRow(button) {
         let value = input.value;
 
         if (field === "date") {
-            // Formatta la data in YYYY-MM-DD prima di inviarla al server
+            // Usa direttamente il valore del campo di input type="date" (già in formato YYYY-MM-DD)
             const rawDate = new Date(value);
             if (!isNaN(rawDate)) {
-                value = rawDate.toISOString().split("T")[0];
+                value = rawDate.toISOString().split("T")[0]; // Assicurati del formato YYYY-MM-DD
             } else {
                 console.error(`Data non valida per il campo "${field}":`, value);
             }
@@ -167,20 +167,26 @@ function saveRow(button) {
 }
 
 
-
 function cancelEdit(button) {
     const row = button.closest("tr");
     const inputs = row.querySelectorAll(".editable");
 
-    // Trasforma ogni <input> in <span> usando il valore originale
+    // Trasforma ogni elemento <input> in <span>
     inputs.forEach(input => {
         const field = input.getAttribute("data-field");
         const originalValue = input.getAttribute("data-original-value"); // Recupera il valore originale
         const span = document.createElement("span");
 
+        if (field === "date" && originalValue) {
+            // Riconverte la data in formato leggibile (gg-MM-aaaa)
+            const [year, month, day] = originalValue.split("-");
+            span.textContent = `${day}-${month}-${year}`;
+        } else {
+            span.textContent = originalValue;
+        }
+
         span.className = "output";
         span.setAttribute("data-field", field);
-        span.textContent = originalValue; // Imposta il valore originale
 
         input.replaceWith(span);
     });
@@ -190,6 +196,7 @@ function cancelEdit(button) {
     row.querySelector(".btn-warning").classList.remove("d-none");
     row.querySelector(".btn-success").classList.add("d-none");
 }
+
 
 
 
