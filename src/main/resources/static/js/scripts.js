@@ -82,13 +82,27 @@ function editRow(button) {
     // Trasforma ogni elemento <span> in <input>
     outputs.forEach(output => {
         const field = output.getAttribute("data-field");
-        const value = output.textContent.trim();
-        const input = document.createElement("input");
+        let value = output.textContent.trim(); // Ottieni il valore corrente
 
-        input.type = field === "date" ? "date" : "text";
-        input.value = value;
+        const input = document.createElement("input");
+        if (field === "date") {
+            // Converte la data esistente (se presente) in formato YYYY-MM-DD
+            const [day, month, year] = value.split("-");
+            if (day && month && year) {
+                value = `${year}-${month}-${day}`; // Formatta in YYYY-MM-DD
+            }
+
+            input.type = "date";
+        } else {
+            input.type = "text";
+        }
+
+        input.value = value; // Imposta il valore corrente
         input.className = "form-control editable";
         input.setAttribute("data-field", field);
+
+        // Conserva il valore originale per l'annullamento
+        input.setAttribute("data-original-value", output.textContent.trim());
 
         output.replaceWith(input);
     });
@@ -100,6 +114,7 @@ function editRow(button) {
 }
 
 
+
 function saveRow(button) {
     const row = button.closest("tr");
     const inputs = row.querySelectorAll(".editable");
@@ -108,7 +123,19 @@ function saveRow(button) {
     const rowData = { id }; // Include l'ID
     inputs.forEach(input => {
         const field = input.getAttribute("data-field");
-        rowData[field] = input.value;
+        let value = input.value;
+
+        if (field === "date") {
+            // Formatta la data in YYYY-MM-DD prima di inviarla al server
+            const rawDate = new Date(value);
+            if (!isNaN(rawDate)) {
+                value = rawDate.toISOString().split("T")[0];
+            } else {
+                console.error(`Data non valida per il campo "${field}":`, value);
+            }
+        }
+
+        rowData[field] = value;
     });
 
     console.log("Dati inviati:", rowData);
@@ -124,23 +151,11 @@ function saveRow(button) {
             if (response.ok) {
                 console.log("Riga aggiornata con successo");
 
-                // Trasforma ogni <input> in <span>
-                inputs.forEach(input => {
-                    const field = input.getAttribute("data-field");
-                    const value = input.value;
-                    const span = document.createElement("span");
-
-                    span.className = "output";
-                    span.setAttribute("data-field", field);
-                    span.textContent = value;
-
-                    input.replaceWith(span);
-                });
-
-                // Mostra il pulsante Modifica e nascondi Salva e Annulla
-                button.classList.add("d-none");
-                row.querySelector(".btn-warning").classList.remove("d-none");
-                row.querySelector(".btn-secondary").classList.add("d-none");
+                // Ricarica i dettagli del cliente per garantire l'ordine
+                const clientId = document.getElementById("clientSelect").value;
+                if (clientId) {
+                    fetchClientDetails(); // Ricarica l'intera tabella
+                }
             } else {
                 throw new Error("Errore durante l'aggiornamento");
             }
@@ -151,19 +166,21 @@ function saveRow(button) {
         });
 }
 
+
+
 function cancelEdit(button) {
     const row = button.closest("tr");
     const inputs = row.querySelectorAll(".editable");
 
-    // Trasforma ogni elemento <input> in <span>
+    // Trasforma ogni <input> in <span> usando il valore originale
     inputs.forEach(input => {
         const field = input.getAttribute("data-field");
-        const value = input.getAttribute("data-original-value") || input.value;
+        const originalValue = input.getAttribute("data-original-value"); // Recupera il valore originale
         const span = document.createElement("span");
 
         span.className = "output";
         span.setAttribute("data-field", field);
-        span.textContent = value;
+        span.textContent = originalValue; // Imposta il valore originale
 
         input.replaceWith(span);
     });
