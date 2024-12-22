@@ -47,7 +47,7 @@ function fetchClientDetails() {
                     paging: true,
                     pageLength: 5,
                     searching: false,
-                    ordering: true,
+                    ordering: false,
                     order: [[0, 'desc']],
                     language: {
                         paginate: {

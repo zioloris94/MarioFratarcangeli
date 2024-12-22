@@ -10,9 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,27 +45,34 @@ public class HomeController {
             Long clientId = Long.valueOf(payload.get("clientId").toString());
             Client client = clientService.findById(clientId);
 
-            // Creazione e popolamento di ClientDetails
-            ClientDetails clientDetails = new ClientDetails();
-            clientDetails.setClient(client);
-
-            // Parsing e impostazione della data
+            // Parsing e impostazione dei campi comuni
             String dateString = payload.get("date").toString();
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            clientDetails.setDate(formatter.parse(dateString));
+            Date date = formatter.parse(dateString);
 
-            // Impostazione degli altri campi
-            clientDetails.setDescription(payload.get("description").toString());
-            clientDetails.setHours(Integer.valueOf(payload.get("hours").toString()));
-            clientDetails.setRatePerHour(new BigDecimal(payload.get("ratePerHour").toString()));
-            clientDetails.setTravelCost(new BigDecimal(payload.get("travelCost").toString()));
+            String description = payload.get("description").toString();
+            int hours = Integer.valueOf(payload.get("hours").toString());
+            BigDecimal ratePerHour = new BigDecimal(payload.get("ratePerHour").toString());
+            BigDecimal travelCost = new BigDecimal(payload.get("travelCost").toString());
             BigDecimal amount = new BigDecimal(payload.get("amount").toString());
-            clientDetails.setAmount(amount);
-            clientDetails.setResidue(amount);
-            clientDetails.setNumber_people_work(Integer.valueOf(payload.get("number_people_work").toString()));
+            Integer numberOfPeople = Integer.valueOf(payload.get("number_people_work").toString());
 
-            // Salvataggio dei dati
-            clientDetailsService.save(clientDetails);
+            // Crea più righe per ogni persona
+            for (int i = 0; i < numberOfPeople; i++) {
+                ClientDetails clientDetails = new ClientDetails();
+                clientDetails.setClient(client);
+                clientDetails.setDate(date);
+                clientDetails.setDescription(description);
+                clientDetails.setHours(hours);
+                clientDetails.setRatePerHour(ratePerHour);
+                clientDetails.setTravelCost(travelCost);
+                BigDecimal amountForSinglePeople = amount.divide(new BigDecimal(numberOfPeople), 2, BigDecimal.ROUND_HALF_UP);
+                clientDetails.setAmount(amountForSinglePeople);
+                BigDecimal latestResidueByDate = clientDetailsService.findLatestResidueByDate(clientId, date).orElse(BigDecimal.ZERO);
+                clientDetails.setResidue(latestResidueByDate.add(amountForSinglePeople));
+                clientDetails.setNumber_people_work(Integer.valueOf(1));
+                clientDetailsService.save(clientDetails);
+            }
 
             return ResponseEntity.ok("Lavoro salvato con successo!");
         } catch (Exception e) {

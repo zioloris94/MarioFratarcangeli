@@ -7,22 +7,24 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ClientDetailsRepository extends JpaRepository<ClientDetails, Long> {
-    @Query("SELECT c.residue FROM ClientDetails c WHERE c.client.id = :clientId ORDER BY c.id DESC")
-    Optional<BigDecimal> findLatestResidue(@Param("clientId") Long clientId);
+
+    @Query(value = "SELECT c.residue FROM client_details c " +
+            "WHERE c.client_id = :clientId AND c.date <= :date " +
+            "ORDER BY c.date DESC, c.residue DESC LIMIT 1", nativeQuery = true)
+    Optional<BigDecimal> findLatestResidueByDate(@Param("clientId") Long clientId, @Param("date") Date date);
+
 
     @Query("SELECT c FROM ClientDetails c WHERE c.id = :id")
     Optional<ClientDetails> findById(Long id);
 
-    List<ClientDetails> findByClientId(Long clientId);
-
-    @Query("SELECT cd FROM ClientDetails cd WHERE cd.client.id = :clientId ORDER BY cd.date ASC")
-    List<ClientDetails> findByClientIdOrderByDateAsc(@Param("clientId") Long clientId);
-
-    @Query("SELECT cd FROM ClientDetails cd WHERE cd.client.id = :clientId ORDER BY cd.date DESC")
+    @Query("SELECT cd FROM ClientDetails cd " +
+            "WHERE cd.client.id = :clientId " +
+            "ORDER BY cd.date DESC, cd.id DESC")
     List<ClientDetails> findByClientIdOrderByDateDesc(@Param("clientId") Long clientId);
 }
