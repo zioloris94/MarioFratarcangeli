@@ -30,6 +30,38 @@
         </div>
     </div>
 
+    <!-- Sezione: Nuova Sezione Colore Rosso -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-danger text-white">
+            <h2 class="h5 mb-0">Generazione Report</h2>
+        </div>
+        <div class="card-body">
+            <form id="generateReportForm" class="row g-3 align-items-end">
+                <!-- Lista Clienti -->
+                <div class="col-md-4">
+                    <label for="clientReportSelect" class="form-label">Seleziona Cliente:</label>
+                    <select id="clientReportSelect" name="clientId" class="form-select" required>
+                        <option value="" disabled selected>Seleziona un cliente</option>
+                        <option th:each="client : ${clientList}" th:value="${client.id}" th:text="${client.name}"></option>
+                    </select>
+                </div>
+                <!-- Data Inizio -->
+                <div class="col-md-3">
+                    <label for="startDate" class="form-label">Data Inizio:</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" required>
+                </div>
+                <!-- Data Fine -->
+                <div class="col-md-3">
+                    <label for="endDate" class="form-label">Data Fine:</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" required>
+                </div>
+                <!-- Pulsante Genera -->
+                <div class="col-md-2">
+                    <button type="button" id="generatePdfButton" class="btn btn-danger w-100">Genera PDF</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Sezione: Inserimento Nuovo Lavoro -->
     <div class="card shadow-sm mb-4">
@@ -125,5 +157,7 @@
 <script src="/js/scripts.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 </body>
 </html>

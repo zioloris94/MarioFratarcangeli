@@ -64,7 +64,6 @@ function fetchClientDetails() {
     }
 }
 
-// Funzione per formattare la data in formato YYYY-MM-DD
 // Funzione per formattare la data in formato gg-MM-aaaa
 function formatDate(date) {
     const rawDate = new Date(date);
@@ -113,7 +112,6 @@ function editRow(button) {
     row.querySelector(".btn-success").classList.remove("d-none");
     row.querySelector(".btn-secondary").classList.remove("d-none");
 }
-
 
 function saveRow(button) {
     const row = button.closest("tr");
@@ -166,7 +164,6 @@ function saveRow(button) {
         });
 }
 
-
 function cancelEdit(button) {
     const row = button.closest("tr");
     const inputs = row.querySelectorAll(".editable");
@@ -196,9 +193,6 @@ function cancelEdit(button) {
     row.querySelector(".btn-warning").classList.remove("d-none");
     row.querySelector(".btn-success").classList.add("d-none");
 }
-
-
-
 
 document.getElementById("saveButton").addEventListener("click", function () {
     const form = document.getElementById("clientDetailsForm");
@@ -311,6 +305,67 @@ document.getElementById("saveNewClientButton").addEventListener("click", functio
         });
 });
 
+// Includi jsPDF nel tuo progetto (tramite CDN o pacchetto npm)
+document.getElementById("generatePdfButton").addEventListener("click", function () {
+    const clientId = document.getElementById("clientReportSelect").value;
+    const clientSelect = document.getElementById("clientReportSelect");
+    const clientName = clientSelect.options[clientSelect.selectedIndex].textContent.trim();
+    const startDate = new Date(document.getElementById("startDate").value);
+    const endDate = new Date(document.getElementById("endDate").value);
+
+    if (!clientId || isNaN(startDate) || isNaN(endDate)) {
+        alert("Compila tutti i campi!");
+        return;
+    }
+
+    fetch(`/client-details/${clientId}`)
+        .then(response => response.json())
+        .then(data => {
+            const filteredData = data.filter(row => {
+                const rowDate = new Date(row.date);
+                return rowDate >= startDate && rowDate <= endDate;
+            });
+
+            if (filteredData.length === 0) {
+                alert("Nessun dato trovato per il range selezionato.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const headers = ["N°", "DATA", "DESCRIZIONE", "ORE", "IMPORTO (€)", "RESIDUO (€)"];
+            const rows = [];
+
+            filteredData.forEach((row, index) => {
+                rows.push([
+                    index + 1,
+                    new Date(row.date).toLocaleDateString("it-IT"),
+                    row.description || "",
+                    row.hours || "",
+                    row.amount ? row.amount.toFixed(2) : "0.00",
+                    row.residue ? row.residue.toFixed(2) : "0.00",
+                ]);
+            });
+
+            doc.autoTable({
+                head: [headers],
+                body: rows,
+                startY: 30,
+                styles: { fontSize: 10, cellPadding: 3 },
+                headStyles: { fillColor: [220, 53, 69] },
+            });
+
+            const fileName = `${clientName.replace(/\s+/g, '_')}_al_${endDate.toLocaleDateString("it-IT").replace(/\//g, '-')}.pdf`;
+
+            doc.save(fileName);
+        })
+        .catch(error => {
+            console.error("Errore durante il fetch dei dati:", error);
+            alert("Errore durante la generazione del PDF.");
+        });
+});
+
 function updateClientDropdown() {
     fetch("/client-list")
         .then(response => {
@@ -341,8 +396,6 @@ function updateClientDropdown() {
         })
         .catch(error => console.error("Errore durante l'aggiornamento dei dropdown:", error));
 }
-
-
 
 function calculateAmount() {
     const hours = parseFloat(document.getElementById('hours').value) || 0;
